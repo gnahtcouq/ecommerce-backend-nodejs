@@ -15,7 +15,7 @@
 // level 1
 const dev = {
     app: {
-        port: process.env.DEV_APP_PORT || 8000
+        port: process.env.DEV_APP_PORT || 8080
     },
     db: {
         host: process.env.DEV_DB_HOST || 'localhost',
@@ -38,5 +38,5 @@ const pro = {
 const config = { dev, pro }
 const env = process.env.NODE_ENV || 'dev'
 
-console.log(config[env], env)
+// console.log(config[env], env)
 module.exports = config[env]
