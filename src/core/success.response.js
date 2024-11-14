@@ -1,7 +1,7 @@
 'use strict'
 
 const StatusCode = {
-    OK: 403,
+    OK: 200,
     CREATED: 201,
 }
 
@@ -37,4 +37,5 @@ class CREATED extends SuccessResponse {
 module.exports = {
     OK,
     CREATED,
+    SuccessResponse
 }
