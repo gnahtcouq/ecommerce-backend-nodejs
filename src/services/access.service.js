@@ -6,6 +6,7 @@ const crypto = require('node:crypto')
 const KeyTokenService = require('./keyToken.service')
 const { createTokenPair } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
+const { BadRequestError } = require('../core/error.response')
 
 const RoleShop = {
     SHOP: 'SHOP',
@@ -20,10 +21,7 @@ class AccessService {
             // step1: check email exists
             const holderShop = await shopModel.findOne({ email }).lean()
             if (holderShop) {
-                return {
-                    code: 'xxxx',
-                    message: 'Email already exists',
-                }
+                throw new BadRequestError('Email already exists!')
             }
 
             const passwordHash = await bcrypt.hash(password, 10)
@@ -34,22 +32,8 @@ class AccessService {
 
             if (newShop) {
                 // created privateKey, publicKey
-                // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-                //     modulusLength: 4096,
-                //     publicKeyEncoding: {
-                //         type: 'pkcs1',
-                //         format: 'pem'
-                //     },
-                //     privateKeyEncoding: {
-                //         type: 'pkcs1',
-                //         format: 'pem'
-                //     }
-                // })
-
                 const privateKey = crypto.randomBytes(64).toString('hex')
                 const publicKey = crypto.randomBytes(64).toString('hex')
-
-
 
                 console.log({ privateKey, publicKey }) // save collection KeyStore
 
@@ -60,6 +44,7 @@ class AccessService {
                 })
 
                 if (!keyStore) {
+                    //throw new BadRequestError('keyStore error!')
                     return {
                         code: 'xxxx',
                         message: 'keyStore error',
