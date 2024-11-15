@@ -1,4 +1,4 @@
 module.exports = {
-    StatusCodes: require('@/utils/statusCodes'),
-    ReasonPhrases: require('@/utils/reasonPhrases')
+  StatusCodes: require('@/utils/statusCodes'),
+  ReasonPhrases: require('@/utils/reasonPhrases')
 }
