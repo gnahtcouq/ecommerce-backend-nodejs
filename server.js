@@ -1,4 +1,6 @@
-const app = require("./src/app");
+require('module-alias/register');
+
+const app = require("@/app");
 
 const PORT = process.env.DEV_APP_PORT || 8080
 

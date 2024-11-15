@@ -15,12 +15,12 @@ app.use(express.urlencoded({
 }))
 
 // init db
-require('./dbs/init.mongodb')
+require('@/dbs/init.mongodb')
 // const { checkOverload } = require('./helpers/check.connect')
 // checkOverload()
 
 // init routes
-app.use('/', require('./routes'))
+app.use('/', require('@/routes'))
 
 // handling error
 app.use((req, res, next) => {

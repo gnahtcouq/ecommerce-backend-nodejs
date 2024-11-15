@@ -1,0 +1,24 @@
+{
+  "root": true,
+  "parser": "babel-eslint", // or simply "eslint" if babel-eslint is not needed
+  "plugins": ["prettier"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "rules": {
+    "no-unused-vars": "warn", // Warn for unused variables
+    "prefer-const": "warn", // Suggest using const wherever possible
+    "prettier/prettier": [
+      "warn",
+      {
+        "arrowParens": "always",
+        "semi": false,
+        "trailingComma": "none",
+        "tabWidth": 2,
+        "endOfLine": "auto",
+        "useTabs": false,
+        "singleQuote": true,
+        "printWidth": 120,
+        "jsxSingleQuote": true
+      }
+    ]
+  }
+}

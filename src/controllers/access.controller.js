@@ -1,7 +1,7 @@
 'use strict'
 
-const { CREATED, SuccessResponse } = require("../core/success.response")
-const AccessService = require("../services/access.service")
+const { CREATED, SuccessResponse } = require("@/core/success.response")
+const AccessService = require("@/services/access.service")
 
 class AccessController {
     logout = async (req, res, next) => {

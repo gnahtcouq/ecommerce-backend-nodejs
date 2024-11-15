@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "dist", // Đường dẫn output cho thư mục build
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

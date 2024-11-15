@@ -1,14 +1,15 @@
 'use strict'
 
-const StatusCode = {
-    OK: 200,
-    CREATED: 201,
-}
+// const StatusCode = {
+//     OK: 200,
+//     CREATED: 201,
+// }
 
-const ReasonStatusCode = {
-    OK: 'Success',
-    CREATED: 'Created!',
-}
+// const ReasonStatusCode = {
+//     OK: 'Success',
+//     CREATED: 'Created!',
+// }
+
 class SuccessResponse {
     constructor({ message, statusCode = StatusCode.OK, reasonStatusCode = ReasonStatusCode.OK, metadata = {} }) {
         this.message = !message ? reasonStatusCode : message,

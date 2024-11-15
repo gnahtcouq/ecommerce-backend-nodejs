@@ -13,7 +13,7 @@
 const {
     StatusCodes,
     ReasonPhrases
-} = require('../utils/httpStatusCode')
+} = require('@/utils/httpStatusCode')
 
 class ErrorResponse extends Error {
     constructor(message, status) {

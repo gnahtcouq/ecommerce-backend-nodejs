@@ -1,6 +1,6 @@
 'use strict'
 
-const { findById } = require("../services/apikey.service")
+const { findById } = require("@/services/apikey.service")
 
 const HEADER = {
     API_KEY: 'x-api-key',

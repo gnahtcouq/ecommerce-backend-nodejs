@@ -1,13 +1,13 @@
 'use strict'
 
-const shopModel = require('../models/shop.model')
+const shopModel = require('@/models/shop.model')
 const bcrypt = require('bcrypt')
 const crypto = require('node:crypto')
-const KeyTokenService = require('./keyToken.service')
-const { createTokenPair } = require('../auth/authUtils')
-const { getInfoData } = require('../utils')
-const { BadRequestError, AuthFailureError } = require('../core/error.response')
-const { findByEmail } = require('./shop.service')
+const KeyTokenService = require('@/services/keyToken.service')
+const { findByEmail } = require('@/services/shop.service')
+const { BadRequestError, AuthFailureError } = require('@/core/error.response')
+const { getInfoData } = require('@/utils')
+const { createTokenPair } = require('@/auth/authUtils')
 
 const RoleShop = {
     SHOP: 'SHOP',
