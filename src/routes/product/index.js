@@ -2,12 +2,12 @@
 
 const express = require('express')
 const productController = require('@/controllers/product.controller')
-const { authentication } = require('@/auth/authUtils')
+const { authenticationV2 } = require('@/auth/authUtils')
 const asyncHandler = require('@/helpers/asyncHandler')
 const router = express.Router()
 
 // authentication
-router.use(authentication)
+router.use(authenticationV2)
 
 // create new product
 router.post('', asyncHandler(productController.createProduct))
