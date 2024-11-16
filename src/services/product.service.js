@@ -15,6 +15,8 @@ class ProductFactory {
         return new Clothing(payload).createProduct()
       case 'Electronic':
         return new Electronic(payload).createProduct()
+      case 'Furniture':
+        return new Furniture(payload).createProduct()
       default:
         throw new BadRequestError(`Invalid product type ${type}`)
     }
@@ -44,19 +46,22 @@ class Product {
   }
 
   // create new product
-  async createProduct() {
-    return await product.create(this)
+  async createProduct(product_id) {
+    return await product.create({ ...this, _id: product_id })
   }
 }
 
 // define sub-class for different product type Clothing
 class Clothing extends Product {
   async createProduct() {
-    const newClothing = await clothing.create(this.product_attributes)
+    const newClothing = await clothing.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop
+    })
     if (!newClothing) throw new BadRequestError('Create new clothing failed')
 
-    const newProduct = await super.createProduct()
-    if (!newProduct) throw new BadRequestError('Create new Product failed')
+    const newProduct = await super.createProduct(newClothing._id)
+    if (!newProduct) throw new BadRequestError('Create new product failed')
 
     return newProduct
   }
@@ -65,11 +70,30 @@ class Clothing extends Product {
 // define sub-class for different product type Electronic
 class Electronic extends Product {
   async createProduct() {
-    const newElectronic = await electronic.create(this.product_attributes)
+    const newElectronic = await electronic.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop
+    })
     if (!newElectronic) throw new BadRequestError('Create new electronic failed')
 
-    const newProduct = await super.createProduct()
-    if (!newProduct) throw new BadRequestError('Create new Product failed')
+    const newProduct = await super.createProduct(newElectronic._id)
+    if (!newProduct) throw new BadRequestError('Create new product failed')
+
+    return newProduct
+  }
+}
+
+// define sub-class for different product type Furniture
+class Furniture extends Product {
+  async createProduct() {
+    const newFurniture = await electronic.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop
+    })
+    if (!newFurniture) throw new BadRequestError('Create new furniture failed')
+
+    const newProduct = await super.createProduct(newFurniture._id)
+    if (!newProduct) throw new BadRequestError('Create new product failed')
 
     return newProduct
   }
