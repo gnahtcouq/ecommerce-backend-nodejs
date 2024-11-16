@@ -6,11 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "node --watch server.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "dev": "node --watch server.js"
   },
   "_moduleAliases": {
     "@": "src"
@@ -30,11 +26,7 @@
   },
   "devDependencies": {
     "compression": "^1.7.5",
-    "eslint": "^9.14.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
     "helmet": "^8.0.0",
-    "morgan": "^1.10.0",
-    "prettier": "^3.3.3"
+    "morgan": "^1.10.0"
   }
 }

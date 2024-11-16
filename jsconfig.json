@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES6",
     "outDir": "dist", // Đường dẫn output cho thư mục build
     "baseUrl": ".",
     "paths": {
