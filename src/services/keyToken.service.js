@@ -1,6 +1,6 @@
 'use strict'
 
-const keyTokenModel = require('@/models/keytoken.model')
+const keyTokenModel = require('@/models/keyToken.model')
 const {
   Types: { ObjectId }
 } = require('mongoose')

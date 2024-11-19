@@ -9,7 +9,7 @@ const HEADER = {
   API_KEY: 'x-api-key',
   CLIENT_ID: 'x-client-id',
   AUTHORIZATION: 'authorization',
-  REFRESHTOKEN: 'x-rtoken-id'
+  REFRESH_TOKEN: 'refresh-token'
 }
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
@@ -43,9 +43,11 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
         5 - Check keyStore with this userId?
         6 - OK -> return next()
     */
+  const userId = req.headers[HEADER.CLIENT_ID]
+  const accessToken = req.headers[HEADER.AUTHORIZATION]
+  const refreshToken = req.headers[HEADER.REFRESH_TOKEN]
 
   //1.
-  const userId = req.headers[HEADER.CLIENT_ID]
   if (!userId) throw new AuthFailureError('Invalid Request')
 
   //2.
@@ -53,31 +55,29 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   if (!keyStore) throw new NotFoundError('Not found keyStore')
 
   //3.
-  if (req.headers[HEADER.REFRESHTOKEN]) {
+  if (refreshToken) {
     try {
-      const refreshToken = req.headers[HEADER.REFRESHTOKEN]
       const decodeUser = JWT.verify(refreshToken, keyStore.privateKey)
-      if (decodeUser.userId !== userId) throw new AuthFailureError('Invalid userId')
-      req.keyStore = keyStore
+      if (userId !== decodeUser.userId) throw new AuthFailureError('Invalid userId')
       req.user = decodeUser // {userId, email}
+      req.keyStore = keyStore
       req.refreshToken = refreshToken
       return next()
     } catch (error) {
-      console.log('error verify::', error)
       throw error
     }
   }
 
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
   if (!accessToken) throw new AuthFailureError('Invalid Request')
 
+  //4.
   try {
     const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
     if (decodeUser.userId !== userId) throw new AuthFailureError('Invalid userId')
+    req.user = decodeUser
     req.keyStore = keyStore
     return next()
   } catch (error) {
-    console.log('error verify::', error)
     throw error
   }
 })

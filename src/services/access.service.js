@@ -17,6 +17,11 @@ const RoleShop = {
 }
 
 class AccessService {
+  /**
+   * Check this token used?
+   * @param refreshToken
+   * @returns {Promise<void>}
+   */
   static handleRefreshTokenV2 = async ({ refreshToken, user, keyStore }) => {
     const { userId, email } = user
 
@@ -49,9 +54,6 @@ class AccessService {
     }
   }
 
-  /*
-        1 - check this token used?
-    */
   static handleRefreshToken = async (refreshToken) => {
     // check refreshToken used or not
     const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
@@ -61,7 +63,7 @@ class AccessService {
       console.log({ userId, email })
       // delete all tokens in keyStore
       await KeyTokenService.deleteKeyById(userId)
-      throw new ForbiddenError('Something wrong happened. Please relogin!')
+      throw new ForbiddenError('Something wrong happened. Please re-login!')
     }
 
     const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
@@ -98,20 +100,30 @@ class AccessService {
     }
   }
 
+  /**
+   * Action logout
+   *
+   * @param keyStore
+   * @returns {Promise<*>}
+   */
   static logout = async (keyStore) => {
     const delKey = await KeyTokenService.removeKeyById(keyStore._id)
     console.log(delKey)
     return delKey
   }
 
-  /*
-        1 - check email in dbs
-        2 - check password
-        3 - create AT and RT and save to dbs
-        4 - generate tokens
-        5 - get data return login
-    */
-  static login = async ({ email, password, refreshToken = null }) => {
+  /**
+   * 1 - Check email in dbs
+   * 2 - Match password
+   * 3 - Create AT vs RT and save
+   * 4 - Generate tokens
+   * 5 - Get guide return login
+   *
+   * @param email
+   * @param password
+   * @returns {Promise<void>}
+   */
+  static login = async ({ email, password }) => {
     //1.
     const foundShop = await findByEmail({ email })
     if (!foundShop) {
@@ -143,7 +155,7 @@ class AccessService {
 
     return {
       shop: getInfoData({
-        fileds: ['_id', 'name', 'email'],
+        fields: ['_id', 'name', 'email'],
         object: foundShop
       }),
       tokens
@@ -197,7 +209,7 @@ class AccessService {
           code: 201,
           metadata: {
             shop: getInfoData({
-              fileds: ['_id', 'name', 'email'],
+              fields: ['_id', 'name', 'email'],
               object: newShop
             }),
             tokens
