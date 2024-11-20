@@ -14,6 +14,7 @@ router.get('/:product_id', asyncHandler(productController.findProduct))
 router.use(authenticationV2)
 
 router.post('', asyncHandler(productController.createProduct))
+router.patch('/:product_id', asyncHandler(productController.updateProduct))
 router.post('/publish/:id', asyncHandler(productController.publishedProductByShop))
 router.post('/unpublish/:id', asyncHandler(productController.unPublishedProductByShop))
 
