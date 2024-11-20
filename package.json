@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write ."
   },
   "_moduleAliases": {
     "@": "src"
@@ -26,8 +30,16 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "compression": "^1.7.5",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
     "helmet": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10"
   }
 }
