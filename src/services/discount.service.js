@@ -52,7 +52,7 @@ class DiscountService {
       })
       .lean()
 
-    if (foundDiscount && foundDiscount.discount_is_active) {
+    if (foundDiscount) {
       throw new BadRequestError('Discount code already exists!')
     }
 
