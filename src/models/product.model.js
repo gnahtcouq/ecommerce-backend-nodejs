@@ -3,8 +3,8 @@
 const { model, Schema } = require('mongoose')
 const slugify = require('slugify')
 
-const DOCUMENT_NAME = 'Product'
-const COLLECTION_NAME = 'Products'
+const DOCUMENT_NAME = 'product'
+const COLLECTION_NAME = 'products'
 
 const productSchema = new Schema(
   {

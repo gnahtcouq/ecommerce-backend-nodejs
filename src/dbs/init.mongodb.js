@@ -33,7 +33,7 @@ class Database {
       Database.instance = new Database()
     }
 
-    return Database.instnace
+    return Database.instance
   }
 }
 

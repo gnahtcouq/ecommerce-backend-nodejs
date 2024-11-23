@@ -2,8 +2,8 @@
 
 const { model, Schema } = require('mongoose')
 
-const DOCUMENT_NAME = 'Discount'
-const COLLECTION_NAME = 'Discounts'
+const DOCUMENT_NAME = 'discount'
+const COLLECTION_NAME = 'discounts'
 
 // Declare the Schema of the Mongo model
 const discountSchema = new Schema(
@@ -22,7 +22,7 @@ const discountSchema = new Schema(
     discount_min_order_value: { type: Number, required: true },
     discount_shopId: { type: Schema.Types.ObjectId, ref: 'Shop' },
     discount_is_active: { type: Boolean, default: true },
-    discount_apply_to: { type: [String], required: true, enum: ['all', 'specific'] },
+    discount_apply_to: { type: String, required: true, enum: ['all', 'specific'] },
     discount_product_ids: { type: Array, default: [] }
   },
   {

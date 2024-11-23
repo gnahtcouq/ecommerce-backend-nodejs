@@ -30,6 +30,10 @@ const findAllDiscountCodesUnSelect = async ({ limit = 50, page = 1, sort = 'ctim
   return documents
 }
 
+// const checkDiscountExist = async (model, filter) => {
+//   return await model.findOne(filter).lean()
+// }
+
 module.exports = {
   findAllDiscountCodesSelect,
   findAllDiscountCodesUnSelect
