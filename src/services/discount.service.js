@@ -1,7 +1,7 @@
 'use strict'
 
 const { BadRequestError, NotFoundError } = require('@/core/error.response')
-const discount = require('@/models/discount.model')
+const discountModel = require('@/models/discount.model')
 const { findAllDiscountCodesSelect } = require('@/models/repositories/discount.repo')
 const { findAllProducts } = require('@/services/product.service')
 const { convertToObjectIdMongodb } = require('@/utils')
@@ -42,7 +42,7 @@ class DiscountService {
     }
 
     // create index for discount code
-    const foundDiscount = await discount.findOne({
+    const foundDiscount = await discountModel.findOne({
       discount_code: code,
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
@@ -51,7 +51,7 @@ class DiscountService {
       throw new BadRequestError('Discount code already exists!')
     }
 
-    const newDiscount = await discount.create({
+    const newDiscount = await discountModel.create({
       discount_name: name,
       discount_description: description,
       discount_type: type,
@@ -75,10 +75,10 @@ class DiscountService {
 
   static async updateDiscountCode() {}
 
-  static async getAllDiscountCodesWithProduct({ code, shopId, limit, page }) {
+  static async getAllDiscountCodesWithProduct({ codeId, shopId, limit, page }) {
     // create index for discount_code
-    const foundDiscount = await discount.findOne({
-      discount_code: code,
+    const foundDiscount = await discountModel.findOne({
+      discount_code: codeId,
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
 
@@ -128,15 +128,15 @@ class DiscountService {
         discount_is_active: true
       },
       select: ['discount_name', 'discount_code'],
-      model: discount
+      model: discountModel
     })
 
     return discounts
   }
 
-  static async getDiscountAmount({ code, userId, shopId, products }) {
-    const foundDiscount = await discount.findOne({
-      discount_code: code,
+  static async getDiscountAmount({ codeId, userId, shopId, products }) {
+    const foundDiscount = await discountModel.findOne({
+      discount_code: codeId,
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
 
@@ -189,7 +189,7 @@ class DiscountService {
   }
 
   static async deleteDiscountCode({ code, shopId }) {
-    const deleted = await discount.findOneAndDelete({
+    const deleted = await discountModel.findOneAndDelete({
       discount_code: code,
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
@@ -197,15 +197,15 @@ class DiscountService {
     return deleted
   }
 
-  static async cancelDiscountCode({ code, userId, shopId }) {
-    const foundDiscount = await discount.findOne({
-      discount_code: code,
+  static async cancelDiscountCode({ codeId, userId, shopId }) {
+    const foundDiscount = await discountModel.findOne({
+      discount_code: codeId,
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
 
     if (!foundDiscount) throw new NotFoundError('Discount code not found!')
 
-    const result = await discount.findByIdAndUpdate(foundDiscount._id, {
+    const result = await discountModel.findByIdAndUpdate(foundDiscount._id, {
       $pull: { discount_user_uses: userId },
       $inc: {
         discount_max_users: 1,

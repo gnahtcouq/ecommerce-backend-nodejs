@@ -1,7 +1,7 @@
 'use strict'
 
 const { product } = require('@/models/product.model')
-const { getSelectData, unGetSelectData } = require('@/utils')
+const { getSelectData, unGetSelectData, convertToObjectIdMongodb } = require('@/utils')
 const { Types } = require('mongoose')
 
 const findAllDraftsForShop = async ({ query, limit, skip }) => {
@@ -80,8 +80,30 @@ const findProduct = async ({ product_id, unSelect }) => {
   return await product.findById(product_id).select(unGetSelectData(unSelect)).lean().exec()
 }
 
+const getProductById = async (productId) => {
+  return await product
+    .findOne({ _id: convertToObjectIdMongodb(productId) })
+    .lean()
+    .exec()
+}
+
 const updateProductById = async ({ product_id, payload, model, isNew = true }) => {
   return await model.findByIdAndUpdate(product_id, payload, { new: isNew }).lean().exec()
+}
+
+const checkProductByServer = async (products) => {
+  return await Promise.all(
+    products.map(async (product) => {
+      const foundProduct = await getProductById(product.productId)
+      if (foundProduct) {
+        return {
+          price: foundProduct.product_price,
+          quantity: product.quantity,
+          productId: product.productId
+        }
+      }
+    })
+  )
 }
 
 module.exports = {
@@ -92,5 +114,7 @@ module.exports = {
   unPublishProductByShop,
   findAllProducts,
   findProduct,
-  updateProductById
+  getProductById,
+  updateProductById,
+  checkProductByServer
 }

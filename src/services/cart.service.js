@@ -1,7 +1,7 @@
 'use strict'
 
 const { BadRequestError, NotFoundError } = require('@/core/error.response')
-const cart = require('@/models/cart.model')
+const cartModel = require('@/models/cart.model')
 const { findProduct } = require('@/models/repositories/product.repo')
 
 /* Key features: Cart Service
@@ -24,7 +24,7 @@ class CartService {
       },
       options = { upsert: true, new: true }
 
-    return await cart.findOneAndUpdate(query, updateOrInsert, options)
+    return await cartModel.findOneAndUpdate(query, updateOrInsert, options)
   }
 
   static async updateUserCartQuantity({ userId, product }) {
@@ -41,13 +41,13 @@ class CartService {
       },
       options = { upsert: true, new: true }
 
-    return await cart.findOneAndUpdate(query, updateSet, options)
+    return await cartModel.findOneAndUpdate(query, updateSet, options)
   }
   /// END REPO CART ///
 
   static async addToCart({ userId, product = {} }) {
     // check cart exist
-    const userCart = await cart.findOne({ cart_userId: userId, cart_state: 'active' })
+    const userCart = await cartModel.findOne({ cart_userId: userId, cart_state: 'active' })
     if (!userCart) {
       // create new cart
       return await this.createUserCart({ userId, product })
@@ -64,6 +64,23 @@ class CartService {
   }
 
   // update cart
+  /**
+   * shop_order_ids: [
+   *  {
+   *      shopId,
+   *      item_products: [
+   *          {
+   *              quantity,
+   *              price,
+   *              shopId,
+   *              old_quantity,
+   *              productId
+   *          }
+   *      ],
+   *      version
+   *  }
+   * ]
+   */
   static async updateCartQuantity({ userId, shop_order_ids = [] }) {
     const { productId, quantity, old_quantity } = shop_order_ids[0]?.item_products[0]
     // check product exist
@@ -75,7 +92,7 @@ class CartService {
     }
 
     if (quantity === 0) {
-      // delete
+      // todo delete
     }
 
     return await this.updateUserCartQuantity({
@@ -100,7 +117,7 @@ class CartService {
   }
 
   static async getListUserCart({ userId }) {
-    return await cart.findOne({ cart_userId: +userId, cart_state: 'active' }).lean()
+    return await cartModel.findOne({ cart_userId: +userId, cart_state: 'active' }).lean()
   }
 }
 
