@@ -4,45 +4,9 @@ const { findCartById } = require('@/models/repositories/cart.repo')
 const { BadRequestError, NotFoundError } = require('@/core/error.response')
 const { checkProductByServer } = require('@/models/repositories/product.repo')
 const { getDiscountAmount } = require('@/services/discount.service')
+const { acquireLock } = require('@/services/redis.service')
 
 class CheckoutService {
-  // login and without login
-  /*
-    {
-      cartId,
-      userId,
-      shop_order_ids: [
-        {
-          shopId,
-          shop_discounts: [],
-          item_products: [
-            {
-              price,
-              quantity,
-              productId
-            }
-          ]
-        },
-        {
-          shopId,
-          shop_discounts: [
-            {
-              shopId,
-              discountId,
-              codeId
-            }
-          ],
-          item_products: [
-            {
-              price,
-              quantity,
-              productId
-            }
-          ]
-        }
-      ]
-    }
-  */
   static async checkoutReview({ cartId, userId, shop_order_ids = [] }) {
     // check cartid exist
     const foundCart = await findCartById(cartId)
@@ -109,6 +73,65 @@ class CheckoutService {
       checkout_order
     }
   }
+
+  // order
+  static async orderByUser({ shop_order_ids, cartId, userId, user_address = {}, user_payment = {} }) {
+    const { shop_order_ids_news, checkout_order } = await this.checkoutReview({ cartId, userId, shop_order_ids })
+
+    // check lại 1 lần nữa xem vượt tồn kho hay không?
+    // get new array Products
+    const products = shop_order_ids_news.flatMap((order) => order.item_products)
+    console.log(`[1]:`, products)
+    const acquireProduct = []
+    for (let i = 0; i < products.length; i++) {
+      const { productId, quantity } = products[i]
+      const keyLock = await acquireLock(productId, quantity, cartId)
+      acquireProduct.push(keyLock ? true : false)
+      if (keyLock) {
+        await releaseLock(keyLock)
+      }
+    }
+
+    // check nếu có 1 sản phẩm hết hàng trong kho
+    if (acquireProduct.includes(false)) {
+      throw new BadRequestError('Order product out of stock!')
+    }
+
+    const newOrder = await order.create({
+      order_userId: userId,
+      order_checkout: checkout_order,
+      order_shipping: user_address,
+      order_payment: user_payment,
+      order_products: shop_order_ids_news
+    })
+
+    // trường hợp: nếu insert thành công -> remove product có trong cart
+    if (newOrder) {
+      await cart.updateOne({ _id: cartId }, { $set: { cart_products: [] } })
+    }
+
+    return newOrder
+  }
+
+  /*
+    1. Query Orders [Users]
+  */
+  static async getOrdersByUser() {}
+
+  /*
+    2. Query Order using Id [Users]
+  */
+  static async getOneOrderByUser() {}
+
+  /*
+    3. Cancel Order [Users]
+  */
+  static async cancelOrderByUser() {}
+
+  /*
+    4. Update Order Status [Shop | Admin]
+  */
+  static async updateOrderStatusByShop() {}
 }
 
 module.exports = CheckoutService

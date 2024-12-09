@@ -1,8 +1,12 @@
 'use strict'
 
 const express = require('express')
-const { apiKey, permission } = require('@/auth/checkAuth')
 const router = express.Router()
+const { apiKey, permission } = require('@/auth/checkAuth')
+const { pushToLogDiscord } = require('@/middlewares')
+
+// add log to discord
+router.use(pushToLogDiscord)
 
 // check apiKey
 router.use(apiKey)
@@ -15,5 +19,6 @@ router.use('/v1/api/product', require('@/routes/product'))
 router.use('/v1/api/discount', require('@/routes/discount'))
 router.use('/v1/api/cart', require('@/routes/cart'))
 router.use('/v1/api/checkout', require('@/routes/checkout'))
+router.use('/v1/api/inventory', require('@/routes/inventory'))
 
 module.exports = router
