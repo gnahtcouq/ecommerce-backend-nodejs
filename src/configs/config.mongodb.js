@@ -1,42 +1,48 @@
 'use strict'
 
-// level 0
-// const config = {
-//     app: {
-//         port: 3000
-//     },
-//     db: {
-//         host: 'localhost',
-//         port: 27017,
-//         name: 'db'
-//     }
-// }
+const mongoose = require('mongoose')
+const { countConnect } = require('@/helpers/check.connect')
+const {
+  db: { host, name, port }
+} = require('@/configs/config')
 
-// level 1
-const dev = {
-  app: {
-    port: process.env.DEV_APP_PORT || 8080
-  },
-  db: {
-    host: process.env.DEV_DB_HOST || 'localhost',
-    port: process.env.DEV_DB_PORT || 27017,
-    name: process.env.DEV_DB_NAME || 'shopDEV'
+const connectString = `mongodb://${host}:${port}/${name}`
+const MAX_POLL_SIZE = 50
+const TIME_OUT_CONNECT = 10000
+
+mongoose.set('strictQuery', true)
+
+class Database {
+  constructor() {
+    this.connect()
+  }
+
+  // connect
+  connect(type = 'mongodb') {
+    if (1 === 1) {
+      mongoose.set('debug', true)
+      mongoose.set('debug', { color: true })
+    }
+
+    mongoose
+      .connect(connectString, {
+        serverSelectionTimeoutMS: TIME_OUT_CONNECT,
+        maxPoolSize: MAX_POLL_SIZE
+      })
+      .then((_) => {
+        console.log(`Connected Mongodb Success!`, countConnect())
+      })
+      .catch((err) => console.log(`Error Connect!`))
+  }
+
+  static getInstance() {
+    if (!Database.instance) {
+      Database.instance = new Database()
+    }
+
+    return Database.instance
   }
 }
 
-const pro = {
-  app: {
-    port: process.env.PRO_APP_PORT || 3000
-  },
-  db: {
-    host: process.env.PRO_DB_HOST || 'localhost',
-    port: process.env.PRO_DB_PORT || 27017,
-    name: process.env.PRO_DB_NAME || 'shopPRO'
-  }
-}
-
-const config = { dev, pro }
-const env = process.env.NODE_ENV || 'dev'
-
-// console.log(config[env], env)
-module.exports = config[env]
+const instanceMongodb = Database.getInstance()
+module.exports = instanceMongodb

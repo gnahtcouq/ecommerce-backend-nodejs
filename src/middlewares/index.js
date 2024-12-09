@@ -1,10 +1,10 @@
 'use strict'
 
-const Logger = require('@/loggers/discord.log')
+const DiscordLogConfig = require('@/configs/config.notification')
 
 const pushToLogDiscord = async (req, res, next) => {
   try {
-    Logger.sendToFormatCode({
+    DiscordLogConfig.sendToFormatCode({
       title: `Method: ${req.method}`,
       code: req.method === 'GET' ? req.query : req.body,
       message: `${req.get('host')}${req.originalUrl}`
