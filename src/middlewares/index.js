@@ -1,6 +1,6 @@
 'use strict'
 
-const DiscordLogConfig = require('@/configs/config.notification')
+const DiscordLogConfig = require('@/configs/config.discord')
 
 const pushToLogDiscord = async (req, res, next) => {
   try {

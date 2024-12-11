@@ -64,6 +64,11 @@ app.use(
 app.use(express.json({ limit: '10kb' }))
 app.use(express.urlencoded({ extended: true, limit: '10kb' }))
 
+// test pub.sub redis
+require('@/tests/inventory.test')
+const productTest = require('@/tests/product.test')
+productTest.purchaseProduct('product:001', 10)
+
 // init db
 if (checkEnable(configs.db.enable)) {
   require('@/configs/config.mongodb')
