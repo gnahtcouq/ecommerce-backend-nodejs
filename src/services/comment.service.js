@@ -2,7 +2,7 @@
 
 const commentModel = require('@/models/comment.model')
 const { convertToObjectIdMongodb } = require('@/utils')
-const { BadRequestError, NotFoundError } = require('@/core/error.response')
+const { Api404Error } = require('@/core/error.response')
 
 /*
   key features:
@@ -20,11 +20,11 @@ class CommentService {
       comment_parentId: parentCommentId
     })
 
-    let rightValue
+    let rightValue = 0
     if (parentCommentId) {
       // reply comment
       const parentComment = await commentModel.findById(parentCommentId)
-      if (!parentComment) throw new NotFoundError('Parent comment not found')
+      if (!parentComment) throw new Api404Error('Parent comment not found')
       rightValue = parentComment.comment_right
 
       // updateMany comments
@@ -51,11 +51,8 @@ class CommentService {
         },
         { $inc: { comment_right: 2 } }
       )
-      if (maxRightValue) {
-        rightValue = maxRightValue.comment_right + 1
-      } else {
-        rightValue = 1
-      }
+      if (maxRightValue) rightValue = maxRightValue.comment_right + 1
+      else rightValue = 1
     }
 
     // insert to comment
@@ -69,7 +66,7 @@ class CommentService {
   static async getCommentsByParentId({ productId, parentCommentId = null, limit = 50, offset = 0 }) {
     if (parentCommentId) {
       const parentComment = await commentModel.findById(parentCommentId)
-      if (!parentComment) throw new NotFoundError('Parent comment not found')
+      if (!parentComment) throw new Api404Error('Parent comment not found')
       const comments = await commentModel
         .find({
           comment_productId: convertToObjectIdMongodb(productId),

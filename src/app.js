@@ -1,4 +1,3 @@
-require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const compression = require('compression')
@@ -65,9 +64,9 @@ app.use(express.json({ limit: '10kb' }))
 app.use(express.urlencoded({ extended: true, limit: '10kb' }))
 
 // test pub.sub redis
-require('@/tests/inventory.test')
-const productTest = require('@/tests/product.test')
-productTest.purchaseProduct('product:001', 10)
+// require('@/tests/inventory.test')
+// const productTest = require('@/tests/product.test')
+// productTest.purchaseProduct('product:001', 10)
 
 // init db
 if (checkEnable(configs.db.enable)) {
@@ -90,11 +89,12 @@ app.use(
 // init routes
 app.use('/', require('@/routes'))
 
+// process handler
+require('@/middleware/processHandler')
+
 // handling error
-app.use((req, res, next) => {
-  const error = new Error('Not found')
-  error.status = 404
-  next(error)
-})
+const { returnError, is404Handler, isOperationalError } = require('@/middleware/errorHandler')
+app.use(is404Handler)
+app.use(returnError)
 
 module.exports = app

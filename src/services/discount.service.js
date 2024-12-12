@@ -1,6 +1,6 @@
 'use strict'
 
-const { BadRequestError, NotFoundError } = require('@/core/error.response')
+const { Api400Error, Api404Error } = require('@/core/error.response')
 const discountModel = require('@/models/discount.model')
 const { findAllDiscountCodesSelect } = require('@/models/repositories/discount.repo')
 const { findAllProducts } = require('@/services/product.service')
@@ -38,7 +38,7 @@ class DiscountService {
     } = payload
 
     if (new Date(start_date) >= new Date(end_date)) {
-      throw new BadRequestError('Start date must be less than end date!')
+      throw new Api400Error('Start date must be less than end date!')
     }
 
     // create index for discount code
@@ -48,7 +48,7 @@ class DiscountService {
     })
 
     if (foundDiscount) {
-      throw new BadRequestError('Discount code already exists!')
+      throw new Api400Error('Discount code already exists!')
     }
 
     const newDiscount = await discountModel.create({
@@ -83,7 +83,7 @@ class DiscountService {
     })
 
     if (!foundDiscount || !foundDiscount.discount_is_active) {
-      throw new NotFoundError('Discount code not found!')
+      throw new Api404Error('Discount code not found!')
     }
 
     const { discount_apply_to, discount_product_ids } = foundDiscount
@@ -140,7 +140,7 @@ class DiscountService {
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
 
-    if (!foundDiscount) throw new NotFoundError('Discount code not found!')
+    if (!foundDiscount) throw new Api404Error('Discount code not found!')
 
     const {
       discount_is_active,
@@ -152,11 +152,11 @@ class DiscountService {
       discount_type,
       discount_value
     } = foundDiscount
-    if (!discount_is_active) throw new BadRequestError('Discount code has expired!')
-    if (!discount_user_uses) throw new BadRequestError('Discount code already used!')
+    if (!discount_is_active) throw new Api400Error('Discount code has expired!')
+    if (!discount_user_uses) throw new Api400Error('Discount code already used!')
 
     // if (new Date() < new Date(discount_start_date) || new Date() > new Date(discount_end_date)) {
-    //   throw new BadRequestError('Discount code has expired!')
+    //   throw new Api400Error('Discount code has expired!')
     // }
 
     // check xem có xét giá trị tối thiểu hay không
@@ -168,14 +168,14 @@ class DiscountService {
       }, 0)
 
       if (totalOrder < discount_min_order_value) {
-        throw new BadRequestError(`Total order value is not enough! Min order value: ${discount_min_order_value}`)
+        throw new Api400Error(`Total order value is not enough! Min order value: ${discount_min_order_value}`)
       }
     }
 
     if (discount_max_uses_per_user > 0) {
       // check xem user đã sử dụng hết chưa
       const userUsed = discount_user_uses.find((user) => user === userId)
-      if (userUsed) throw new BadRequestError('You have already used this discount code!')
+      if (userUsed) throw new Api400Error('You have already used this discount code!')
     }
 
     // check xem discount này là fixed amount hay percent
@@ -203,7 +203,7 @@ class DiscountService {
       discount_shopId: convertToObjectIdMongodb(shopId)
     })
 
-    if (!foundDiscount) throw new NotFoundError('Discount code not found!')
+    if (!foundDiscount) throw new Api404Error('Discount code not found!')
 
     const result = await discountModel.findByIdAndUpdate(foundDiscount._id, {
       $pull: { discount_user_uses: userId },

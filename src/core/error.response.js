@@ -2,47 +2,74 @@
 
 const { StatusCodes, ReasonPhrases } = require('@/utils/httpStatusCode')
 
-class ErrorResponse extends Error {
-  constructor(message, status) {
+class BaseError extends Error {
+  constructor(message, status, errors, isOperational) {
     super(message)
+    Object.setPrototypeOf(this, new.target.prototype)
     this.status = status
+    this.errors = errors
+    this.isOperational = isOperational
+    Error.captureStackTrace(this, this.constructor)
   }
 }
 
-class ConflictRequestError extends ErrorResponse {
-  constructor(message = ReasonPhrases.CONFLICT, statusCode = StatusCodes.CONFLICT) {
-    super(message, statusCode)
+class Api400Error extends BaseError {
+  constructor(
+    message = ReasonPhrases.BAD_REQUEST,
+    errors = [],
+    status = StatusCodes.BAD_REQUEST,
+    isOperational = true
+  ) {
+    super(message, status, errors, isOperational)
   }
 }
 
-class BadRequestError extends ErrorResponse {
-  constructor(message = ReasonPhrases.FORBIDDEN, statusCode = StatusCodes.FORBIDDEN) {
-    super(message, statusCode)
+class Api401Error extends BaseError {
+  constructor(
+    message = ReasonPhrases.UNAUTHORIZED,
+    errors = [],
+    status = StatusCodes.UNAUTHORIZED,
+    isOperational = true
+  ) {
+    super(message, status, errors, isOperational)
   }
 }
 
-class AuthFailureError extends ErrorResponse {
-  constructor(message = ReasonPhrases.UNAUTHORIZED, statusCode = StatusCodes.UNAUTHORIZED) {
-    super(message, statusCode)
+class Api403Error extends BaseError {
+  constructor(message = ReasonPhrases.FORBIDDEN, errors = [], status = StatusCodes.FORBIDDEN, isOperational = true) {
+    super(message, status, errors, isOperational)
   }
 }
 
-class NotFoundError extends ErrorResponse {
-  constructor(message = ReasonPhrases.NOT_FOUND, statusCode = StatusCodes.NOT_FOUND) {
-    super(message, statusCode)
+class Api404Error extends BaseError {
+  constructor(message = ReasonPhrases.NOT_FOUND, errors = [], status = StatusCodes.NOT_FOUND, isOperational = true) {
+    super(message, status, errors, isOperational)
   }
 }
 
-class ForbiddenError extends ErrorResponse {
-  constructor(message = ReasonPhrases.FORBIDDEN, statusCode = StatusCodes.FORBIDDEN) {
-    super(message, statusCode)
+class Api409Error extends BaseError {
+  constructor(message = ReasonPhrases.CONFLICT, errors = [], status = StatusCodes.CONFLICT, isOperational = true) {
+    super(message, status, errors, isOperational)
+  }
+}
+
+class BusinessLogicError extends BaseError {
+  constructor(
+    message = ReasonPhrases.INTERNAL_SERVER_ERROR,
+    errors = [],
+    status = StatusCodes.INTERNAL_SERVER_ERROR,
+    isOperational = true
+  ) {
+    super(message, status, errors, isOperational)
   }
 }
 
 module.exports = {
-  ConflictRequestError,
-  BadRequestError,
-  AuthFailureError,
-  NotFoundError,
-  ForbiddenError
+  Api400Error,
+  Api401Error,
+  Api403Error,
+  Api404Error,
+  Api409Error,
+  BusinessLogicError,
+  BaseError
 }

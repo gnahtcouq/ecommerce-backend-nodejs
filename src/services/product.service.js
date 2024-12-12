@@ -1,6 +1,6 @@
 'use strict'
 
-const { BadRequestError } = require('@/core/error.response')
+const { Api400Error } = require('@/core/error.response')
 const { product, clothing, electronic, furniture } = require('@/models/product.model')
 const { insertInventory } = require('@/models/repositories/inventory.repo')
 const {
@@ -30,13 +30,13 @@ class ProductService {
 
   static async createProduct(type, payload) {
     const productClass = ProductService.productRegistry[type]
-    if (!productClass) throw new BadRequestError(`Invalid product type ${type}`)
+    if (!productClass) throw new Api400Error(`Invalid product type ${type}`)
     return new productClass(payload).createProduct()
   }
 
   static async updateProduct(type, product_id, payload) {
     const productClass = ProductService.productRegistry[type]
-    if (!productClass) throw new BadRequestError(`Invalid product type ${type}`)
+    if (!productClass) throw new Api400Error(`Invalid product type ${type}`)
     return new productClass(payload).updateProduct(product_id)
   }
 
@@ -128,10 +128,10 @@ class Clothing extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newClothing) throw new BadRequestError('Create new clothing failed')
+    if (!newClothing) throw new Api400Error('Create new clothing failed')
 
     const newProduct = await super.createProduct(newClothing._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }
@@ -159,10 +159,10 @@ class Electronic extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newElectronic) throw new BadRequestError('Create new electronic failed')
+    if (!newElectronic) throw new Api400Error('Create new electronic failed')
 
     const newProduct = await super.createProduct(newElectronic._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }
@@ -190,10 +190,10 @@ class Furniture extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newFurniture) throw new BadRequestError('Create new furniture failed')
+    if (!newFurniture) throw new Api400Error('Create new furniture failed')
 
     const newProduct = await super.createProduct(newFurniture._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }

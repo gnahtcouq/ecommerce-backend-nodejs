@@ -1,6 +1,6 @@
 'use strict'
 
-const { BadRequestError } = require('@/core/error.response')
+const { Api400Error } = require('@/core/error.response')
 const { product, clothing, electronic } = require('@/models/product.model')
 
 // define Factory class to create product
@@ -18,7 +18,7 @@ class ProductFactory {
       case 'Furniture':
         return new Furniture(payload).createProduct()
       default:
-        throw new BadRequestError(`Invalid product type ${type}`)
+        throw new Api400Error(`Invalid product type ${type}`)
     }
   }
 }
@@ -58,10 +58,10 @@ class Clothing extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newClothing) throw new BadRequestError('Create new clothing failed')
+    if (!newClothing) throw new Api400Error('Create new clothing failed')
 
     const newProduct = await super.createProduct(newClothing._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }
@@ -74,10 +74,10 @@ class Electronic extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newElectronic) throw new BadRequestError('Create new electronic failed')
+    if (!newElectronic) throw new Api400Error('Create new electronic failed')
 
     const newProduct = await super.createProduct(newElectronic._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }
@@ -90,10 +90,10 @@ class Furniture extends Product {
       ...this.product_attributes,
       product_shop: this.product_shop
     })
-    if (!newFurniture) throw new BadRequestError('Create new furniture failed')
+    if (!newFurniture) throw new Api400Error('Create new furniture failed')
 
     const newProduct = await super.createProduct(newFurniture._id)
-    if (!newProduct) throw new BadRequestError('Create new product failed')
+    if (!newProduct) throw new Api400Error('Create new product failed')
 
     return newProduct
   }

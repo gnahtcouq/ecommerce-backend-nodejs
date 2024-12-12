@@ -5,15 +5,17 @@ const bcrypt = require('bcrypt')
 const crypto = require('node:crypto')
 const KeyTokenService = require('@/services/keyToken.service')
 const { findByEmail } = require('@/services/shop.service')
-const { BadRequestError, AuthFailureError, ForbiddenError } = require('@/core/error.response')
+const { Api400Error, Api401Error, Api403Error } = require('@/core/error.response')
 const { getInfoData } = require('@/utils')
-const { createTokenPair, verifyJWT } = require('@/auth/authUtils')
+const { createTokenPair } = require('@/auth/authUtils')
+const apiKeyModel = require('@/models/apiKey.model')
 
 const RoleShop = {
   SHOP: 'SHOP',
-  WRITER: 'WRITER',
-  EDITOR: 'EDITOR',
-  ADMIN: 'ADMIN'
+  WRITER: '001',
+  READ: '002',
+  DELETE: '003',
+  ADMIN: '000'
 }
 
 class AccessService {
@@ -22,18 +24,18 @@ class AccessService {
    * @param refreshToken
    * @returns {Promise<void>}
    */
-  static handleRefreshTokenV2 = async ({ refreshToken, user, keyStore }) => {
+  static handleRefreshToken = async ({ refreshToken, user, keyStore }) => {
     const { userId, email } = user
 
     if (keyStore.refreshTokensUsed.includes(refreshToken)) {
       await KeyTokenService.deleteKeyById(userId)
-      throw new ForbiddenError('Something wrong happened. Please re-login!')
+      throw new Api403Error('Something wrong happened. Please re-login!')
     }
 
-    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError('Shop not registered')
+    if (keyStore.refreshToken !== refreshToken) throw new Api401Error('Shop not registered')
 
     const foundShop = await findByEmail({ email })
-    if (!foundShop) throw new AuthFailureError('Shop not registered')
+    if (!foundShop) throw new Api401Error('Shop not registered')
 
     // create 1 cặp mới
     const tokens = await createTokenPair({ userId, email }, keyStore.publicKey, keyStore.privateKey)
@@ -50,52 +52,6 @@ class AccessService {
 
     return {
       user,
-      tokens
-    }
-  }
-
-  static handleRefreshToken = async (refreshToken) => {
-    // check refreshToken used or not
-    const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
-    if (foundToken) {
-      // decode xem là thằng nào?
-      const { userId, email } = await verifyJWT(refreshToken, foundToken.privateKey)
-      console.log({ userId, email })
-      // delete all tokens in keyStore
-      await KeyTokenService.deleteKeyById(userId)
-      throw new ForbiddenError('Something wrong happened. Please re-login!')
-    }
-
-    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
-    if (!holderToken) throw new AuthFailureError('Shop not registered')
-
-    // verifyToken
-    const { userId, email } = await verifyJWT(refreshToken, holderToken.privateKey)
-    console.log('[2]--', { userId, email })
-
-    // check userId
-    const foundShop = await findByEmail({ email })
-    if (!foundShop) throw new AuthFailureError('Shop not registered')
-
-    // create 1 cặp mới
-    const tokens = await createTokenPair({ userId, email }, holderToken.publicKey, holderToken.privateKey)
-
-    // update token
-    await KeyTokenService.findOneAndUpdate(
-      { _id: holderToken._id },
-      {
-        $set: {
-          refreshToken: tokens.refreshToken
-        },
-        $addToSet: {
-          refreshTokensUsed: refreshToken // add the refresh token to the array of used tokens
-        }
-      },
-      { new: true } // to return the updated document
-    )
-
-    return {
-      user: { userId, email },
       tokens
     }
   }
@@ -126,15 +82,11 @@ class AccessService {
   static login = async ({ email, password }) => {
     //1.
     const foundShop = await findByEmail({ email })
-    if (!foundShop) {
-      throw new BadRequestError('Email not found!')
-    }
+    if (!foundShop) throw new Api400Error('Email not found!')
 
     //2.
     const match = await bcrypt.compare(password, foundShop.password)
-    if (!match) {
-      throw new AuthFailureError('Authentication failed!')
-    }
+    if (!match) throw new Api401Error('Authentication failed!')
 
     //3.
     // created privateKey, publicKey
@@ -166,9 +118,7 @@ class AccessService {
     try {
       // step1: check email exists
       const holderShop = await shopModel.findOne({ email }).lean()
-      if (holderShop) {
-        throw new BadRequestError('Email already exists!')
-      }
+      if (holderShop) throw new Api400Error('Email already exists!')
 
       const passwordHash = await bcrypt.hash(password, 10)
 
@@ -179,55 +129,46 @@ class AccessService {
         roles: [RoleShop.SHOP]
       })
 
-      if (newShop) {
-        // created privateKey, publicKey
-        const privateKey = crypto.randomBytes(64).toString('hex')
-        const publicKey = crypto.randomBytes(64).toString('hex')
+      if (!newShop) return null
 
-        console.log({ privateKey, publicKey }) // save collection KeyStore
+      // created privateKey, publicKey
+      const privateKey = crypto.randomBytes(64).toString('hex')
+      const publicKey = crypto.randomBytes(64).toString('hex')
 
-        const keyStore = await KeyTokenService.createKeyToken({
-          userId: newShop._id,
-          publicKey,
-          privateKey
-        })
+      console.log({ privateKey, publicKey }) // save collection KeyStore
 
-        if (!keyStore) {
-          //throw new BadRequestError('keyStore error!')
-          return {
-            code: 'xxxx',
-            message: 'keyStore error'
-          }
-        }
+      const keyStore = await KeyTokenService.createKeyToken({
+        userId: newShop._id,
+        publicKey,
+        privateKey
+      })
 
-        // created token pair
-        const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
+      if (!keyStore) throw new Api400Error('keyStore error!')
 
-        console.log(`Created Token Success::`, tokens)
+      // created token pair
+      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
 
-        return {
-          code: 201,
-          metadata: {
-            shop: getInfoData({
-              fields: ['_id', 'name', 'email'],
-              object: newShop
-            }),
-            tokens
-          }
-        }
-      }
+      // apiKey
+      const newKey = await apiKeyModel.create({
+        key: crypto.randomBytes(64).toString('hex'),
+        permissions: ['0000']
+      })
+
+      console.log(`Created Token Success::`, tokens)
 
       return {
-        code: 200,
-        metadata: null
+        shop: getInfoData({
+          fields: ['_id', 'name', 'email'],
+          object: newShop
+        }),
+        tokens,
+        apiKey: getInfoData({
+          fields: ['key'],
+          object: newKey
+        })
       }
     } catch (error) {
-      console.log(error)
-      return {
-        code: 'xxx',
-        message: error.message,
-        status: 'error'
-      }
+      throw new Api400Error(error.message)
     }
   }
 }

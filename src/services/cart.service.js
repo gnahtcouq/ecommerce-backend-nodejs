@@ -1,6 +1,6 @@
 'use strict'
 
-const { BadRequestError, NotFoundError } = require('@/core/error.response')
+const { Api400Error, Api404Error } = require('@/core/error.response')
 const cartModel = require('@/models/cart.model')
 const { findProduct } = require('@/models/repositories/product.repo')
 
@@ -85,10 +85,10 @@ class CartService {
     const { productId, quantity, old_quantity } = shop_order_ids[0]?.item_products[0]
     // check product exist
     const foundProduct = await findProduct({ product_id: productId, unSelect: ['__v'] })
-    if (!foundProduct) throw new NotFoundError('Product not found!')
+    if (!foundProduct) throw new Api404Error('Product not found!')
     // compare quantity
     if (foundProduct.product_shop.toString() !== shop_order_ids[0]?.shopId) {
-      throw new BadRequestError('Product not belong to shop!')
+      throw new Api400Error('Product not belong to shop!')
     }
 
     if (quantity === 0) {

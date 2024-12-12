@@ -7,47 +7,64 @@ const HEADER = {
   AUTHORIZATION: 'authorization'
 }
 
+const URL_WHITELIST = ['/api/v1/auth/shop/signup']
+
 const apiKey = async (req, res, next) => {
   try {
+    if (ignoreWhiteList(req)) return next()
+
     const key = req.headers[HEADER.API_KEY]?.toString()
-    if (!key) {
-      return res.status(403).json({
-        message: 'Forbidden Error'
-      })
-    }
+    if (!key) return returnForbiddenError(res)
+
     // check objKey
     const objKey = await findById(key)
-    if (!objKey) {
-      return res.status(403).json({
-        message: 'Forbidden Error'
-      })
-    }
+    if (!objKey) return returnForbiddenError(res)
+
     req.objKey = objKey
     return next()
-  } catch (error) {}
+  } catch (error) {
+    return returnForbiddenError(res)
+  }
 }
 
 const permission = (permission) => {
   return (req, res, next) => {
-    if (!req.objKey.permissions) {
-      return res.status(403).json({
-        message: 'Permission denied'
-      })
-    }
+    if (ignoreWhiteList(req)) return next()
+
+    if (!req.objKey.permissions) return returnPermissionDenied(res)
 
     console.log('permissions::', req.objKey.permissions)
     const validPermission = req.objKey.permissions.includes(permission)
-    if (!validPermission) {
-      return res.status(403).json({
-        message: 'Permission denied'
-      })
-    }
+    if (!validPermission) return returnPermissionDenied(res)
 
     return next()
   }
 }
 
+const throwApi403Error = (message) => {
+  return {
+    message: message
+  }
+}
+
+const returnApi403Error = (res, message) => {
+  return res.status(403).json(throwApi403Error(message))
+}
+
+const returnForbiddenError = (res) => {
+  return returnApi403Error(res, 'Forbidden Error')
+}
+
+const returnPermissionDenied = (res) => {
+  return returnApi403Error(res, 'Permission denied')
+}
+
+const ignoreWhiteList = (request) => {
+  return URL_WHITELIST.includes(request.url)
+}
+
 module.exports = {
   apiKey,
-  permission
+  permission,
+  ignoreWhiteList
 }

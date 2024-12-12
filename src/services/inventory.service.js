@@ -1,13 +1,13 @@
 'use strict'
 
-const { BadRequestError } = require('@/core/error.response')
+const { Api404Error } = require('@/core/error.response')
 const inventoryModel = require('@/models/inventory.model')
 const { getProductById } = require('@/models/repositories/product.repo')
 
 class InventoryService {
   static async addStockToInventory({ stock, productId, shopId, location = 'Nha Trang City' }) {
     const product = await getProductById(productId)
-    if (!product) throw new BadRequestError('Product not found!')
+    if (!product) throw new Api404Error('Product not found!')
 
     const query = { inven_shopId: shopId, inven_productId: productId },
       updateSet = {

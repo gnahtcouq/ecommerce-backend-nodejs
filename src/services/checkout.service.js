@@ -1,7 +1,7 @@
 'use strict'
 
 const { findCartById } = require('@/models/repositories/cart.repo')
-const { BadRequestError, NotFoundError } = require('@/core/error.response')
+const { Api400Error, Api404Error, BusinessLogicError } = require('@/core/error.response')
 const { checkProductByServer } = require('@/models/repositories/product.repo')
 const { getDiscountAmount } = require('@/services/discount.service')
 const { acquireLock } = require('@/services/redis.service')
@@ -10,7 +10,7 @@ class CheckoutService {
   static async checkoutReview({ cartId, userId, shop_order_ids = [] }) {
     // check cartid exist
     const foundCart = await findCartById(cartId)
-    if (!foundCart) throw new NotFoundError('Cart not found!')
+    if (!foundCart) throw new Api404Error('Cart not found!')
 
     const checkout_order = {
         totalPrice: 0,
@@ -26,7 +26,7 @@ class CheckoutService {
       // check product available
       const checkProductServer = await checkProductByServer(item_products)
       console.log('checkProductServer', checkProductServer)
-      if (!checkProductServer[0]) throw new BadRequestError('Order product not available!')
+      if (!checkProductServer[0]) throw new Api400Error('Order product not available!')
 
       // tổng tiền đơn hàng
       const checkoutPrice = checkProductServer.reduce((total, product) => {
@@ -94,7 +94,7 @@ class CheckoutService {
 
     // check nếu có 1 sản phẩm hết hàng trong kho
     if (acquireProduct.includes(false)) {
-      throw new BadRequestError('Order product out of stock!')
+      throw new Api400Error('Order product out of stock!')
     }
 
     const newOrder = await order.create({

@@ -20,7 +20,7 @@ class OK extends SuccessResponse {
   }
 }
 
-class CREATED extends SuccessResponse {
+class Created extends SuccessResponse {
   constructor({
     options = {},
     message,
@@ -35,6 +35,6 @@ class CREATED extends SuccessResponse {
 
 module.exports = {
   OK,
-  CREATED,
+  Created,
   SuccessResponse
 }
