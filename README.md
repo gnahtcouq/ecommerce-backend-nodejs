@@ -4,16 +4,16 @@
 
 ## Todo list
 
-- [] Swagger or OpenApi
+- [ ] Swagger or OpenApi
 - [x] Logger
-- [] I18n
+- [ ] I18n
 - [x] Mongodb
-- [] Caching with redis
-- [] Unit test
-- [] RabbitMq
-- [] Email
-- [] Cron job
-- [] Unit test
+- [ ] Caching with redis
+- [ ] Unit test
+- [ ] RabbitMq
+- [ ] Email
+- [ ] Cron job
+- [ ] Unit test
 - [x] Security with public key, private key, token jwt
 - [ ] Test benchmark with autocannon
 - [ ] Notify with firebase or socketIo
