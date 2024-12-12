@@ -4,7 +4,7 @@ class InventoryServiceTest {
   constructor() {
     RedisPubService.subscribe('purchase_events', (channel, message) => {
       console.log(`Received message from channel ${channel}: ${message}`)
-      InventoryServiceTest.updateInventory(message)
+      InventoryServiceTest.updateInventory(JSON.parse(message))
     })
   }
 
