@@ -111,7 +111,7 @@ class CartService {
           cart_products: { productId }
         }
       }
-    const deleteCart = await cart.updateOne(query, updateSet)
+    const deleteCart = await cartModel.updateOne(query, updateSet)
 
     return deleteCart
   }

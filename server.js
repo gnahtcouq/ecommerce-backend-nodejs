@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8080
 // start server nodejs
 const app = require('@/app')
 const server = app.listen(PORT, () => {
-  console.log(`------::----${process.env.SERVICE_NAME} start with port ${PORT}`)
+  console.log(`${process.env.SERVICE_NAME} start with port ${PORT}`)
 })
 
 process.on('SIGINT', () => {

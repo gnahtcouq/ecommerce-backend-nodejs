@@ -15,7 +15,7 @@ const { findProduct } = require('@/models/repositories/product.repo')
 class CommentService {
   static async createComment({ productId, userId, content, parentCommentId = null }) {
     // check the product exists in the database
-    const foundProduct = await findProduct({ product_id: productId })
+    const foundProduct = await findProduct({ product_id: productId, unSelect: ['__v'] })
     if (!foundProduct) throw new Api404Error('Product not found')
 
     const comment = new commentModel({
@@ -50,11 +50,9 @@ class CommentService {
         { $inc: { comment_left: 2 } }
       )
     } else {
-      const maxRightValue = await commentModel.findOne(
-        { comment_productId: convertToObjectIdMongodb(productId) },
-        'comment_right',
-        { $sort: { comment_right: -1 } }
-      )
+      const maxRightValue = await commentModel
+        .findOne({ comment_productId: convertToObjectIdMongodb(productId) }, 'comment_right')
+        .sort({ comment_right: -1 })
       if (maxRightValue) rightValue = maxRightValue.comment_right + 1
       else rightValue = 1
     }
@@ -110,7 +108,7 @@ class CommentService {
 
   static async deleteComment({ productId, commentId }) {
     // check the product exists in the database
-    const foundProduct = await findProduct({ product_id: productId })
+    const foundProduct = await findProduct({ product_id: productId, unSelect: ['__v'] })
     if (!foundProduct) throw new Api404Error('Product not found')
 
     // 1. xác định giá trị left và right của commentId

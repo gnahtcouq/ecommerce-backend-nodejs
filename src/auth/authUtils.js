@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use strict'
 
 const JWT = require('jsonwebtoken')
@@ -42,8 +43,8 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   if (ignoreWhiteList(req)) return next()
 
   const userId = req.headers[HEADER.CLIENT_ID]
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
-  const refreshToken = req.headers[HEADER.REFRESH_TOKEN]
+  const accessToken = extractToken(req.headers[HEADER.AUTHORIZATION])
+  const refreshToken = extractToken(req.headers[HEADER.REFRESH_TOKEN])
 
   //1. Check userId missing???
   if (!userId) throw new Api401Error('Invalid Request')

@@ -13,7 +13,7 @@ const findAllPublishedForShop = async ({ query, limit, skip }) => {
 }
 
 const searchProductsByUser = async ({ keySearch }) => {
-  const regexSearch = new RegExp(keySearch)
+  const regexSearch = new RegExp(keySearch).toString()
   const results = await product
     .find(
       {
@@ -64,7 +64,7 @@ const unPublishProductByShop = async ({ product_shop, product_id }) => {
 
 const findAllProducts = async ({ limit, sort, page, filter, select }) => {
   const skip = (page - 1) * limit
-  const sortBy = sort === 'ctime' ? { _id: -1 } : { id: 1 }
+  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
   const products = await product
     .find(filter)
     .sort(sortBy)

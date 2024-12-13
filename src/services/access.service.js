@@ -19,11 +19,6 @@ const RoleShop = {
 }
 
 class AccessService {
-  /**
-   * Check this token used?
-   * @param refreshToken
-   * @returns {Promise<void>}
-   */
   static handleRefreshToken = async ({ refreshToken, user, keyStore }) => {
     const { userId, email } = user
 
@@ -68,17 +63,6 @@ class AccessService {
     return delKey
   }
 
-  /**
-   * 1 - Check email in dbs
-   * 2 - Match password
-   * 3 - Create AT vs RT and save
-   * 4 - Generate tokens
-   * 5 - Get guide return login
-   *
-   * @param email
-   * @param password
-   * @returns {Promise<void>}
-   */
   static login = async ({ email, password }) => {
     //1.
     const foundShop = await findByEmail({ email })
@@ -137,16 +121,16 @@ class AccessService {
 
       console.log({ privateKey, publicKey }) // save collection KeyStore
 
+      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
+
       const keyStore = await KeyTokenService.createKeyToken({
         userId: newShop._id,
         publicKey,
-        privateKey
+        privateKey,
+        refreshToken: tokens.refreshToken
       })
 
       if (!keyStore) throw new Api400Error('keyStore error!')
-
-      // created token pair
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
 
       // apiKey
       const newKey = await apiKeyModel.create({

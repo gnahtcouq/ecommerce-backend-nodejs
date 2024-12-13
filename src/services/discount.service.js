@@ -3,7 +3,7 @@
 const { Api400Error, Api404Error } = require('@/core/error.response')
 const discountModel = require('@/models/discount.model')
 const { findAllDiscountCodesSelect } = require('@/models/repositories/discount.repo')
-const { findAllProducts } = require('@/services/product.service')
+const { findAllProducts } = require('@/models/repositories/product.repo')
 const { convertToObjectIdMongodb } = require('@/utils')
 
 /*
@@ -87,36 +87,31 @@ class DiscountService {
     }
 
     const { discount_apply_to, discount_product_ids } = foundDiscount
-    let products
+
+    let filter
     if (discount_apply_to === 'all') {
       // get all products
-      products = await findAllProducts({
-        filter: {
-          product_shop: convertToObjectIdMongodb(shopId),
-          isPublished: true
-        },
-        limit: +limit,
-        page: +page,
-        sort: 'ctime',
-        select: ['product_name']
-      })
+      filter = {
+        product_shop: convertToObjectIdMongodb(shopId),
+        isPublished: true
+      }
     }
 
     if (discount_apply_to === 'specific') {
       // get specific products
-      products = await findAllProducts({
-        filter: {
-          _id: { $in: discount_product_ids },
-          isPublished: true
-        },
-        limit: +limit,
-        page: +page,
-        sort: 'ctime',
-        select: ['product_name']
-      })
+      filter = {
+        _id: { $in: discount_product_ids },
+        isPublished: true
+      }
     }
 
-    return products
+    return await findAllProducts({
+      filter,
+      limit: +limit,
+      page: +page,
+      sort: 'ctime',
+      select: ['product_name']
+    })
   }
 
   static async getAllDiscountCodesByShop({ limit, page, shopId }) {

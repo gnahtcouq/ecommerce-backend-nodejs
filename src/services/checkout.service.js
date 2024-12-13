@@ -3,8 +3,10 @@
 const { findCartById } = require('@/models/repositories/cart.repo')
 const { Api400Error, Api404Error } = require('@/core/error.response')
 const { checkProductByServer } = require('@/models/repositories/product.repo')
-const { getDiscountAmount } = require('@/services/discount.service')
-const { acquireLock } = require('@/services/redis.service')
+const { acquireLock, releaseLock } = require('@/services/redis.service')
+const orderModel = require('@/models/order.model')
+const cartModel = require('@/models/cart.model')
+const DiscountService = require('@/services/discount.service')
 
 class CheckoutService {
   static async checkoutReview({ cartId, userId, shop_order_ids = [] }) {
@@ -47,7 +49,7 @@ class CheckoutService {
       // nếu shop_discounts tồn tại > 0, check xem có hợp lệ hay không
       if (shop_discounts.length > 0) {
         // giả sử chỉ có 1 discount
-        const { totalPrice = 0, discount = 0 } = await getDiscountAmount({
+        const { totalPrice = 0, discount = 0 } = await DiscountService.getDiscountAmount({
           codeId: shop_discounts[0].codeId,
           userId,
           shopId,
@@ -97,7 +99,7 @@ class CheckoutService {
       throw new Api400Error('Order product out of stock!')
     }
 
-    const newOrder = await order.create({
+    const newOrder = await orderModel.create({
       order_userId: userId,
       order_checkout: checkout_order,
       order_shipping: user_address,
@@ -107,7 +109,7 @@ class CheckoutService {
 
     // trường hợp: nếu insert thành công -> remove product có trong cart
     if (newOrder) {
-      await cart.updateOne({ _id: cartId }, { $set: { cart_products: [] } })
+      await cartModel.updateOne({ _id: cartId }, { $set: { cart_products: [] } })
     }
 
     return newOrder
