@@ -10,7 +10,7 @@ const inventorySchema = new Schema(
   {
     inven_productId: {
       type: Schema.Types.ObjectId,
-      ref: 'Product'
+      ref: 'product'
     },
     inven_location: {
       type: String,
@@ -22,7 +22,7 @@ const inventorySchema = new Schema(
     },
     inven_shopId: {
       type: Schema.Types.ObjectId,
-      ref: 'Shop'
+      ref: 'shop'
     },
     inven_reservations: { type: Array, default: [] }
   },

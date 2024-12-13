@@ -1,7 +1,7 @@
 'use strict'
 
 const { findCartById } = require('@/models/repositories/cart.repo')
-const { Api400Error, Api404Error, BusinessLogicError } = require('@/core/error.response')
+const { Api400Error, Api404Error } = require('@/core/error.response')
 const { checkProductByServer } = require('@/models/repositories/product.repo')
 const { getDiscountAmount } = require('@/services/discount.service')
 const { acquireLock } = require('@/services/redis.service')

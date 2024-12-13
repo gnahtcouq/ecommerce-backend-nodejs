@@ -7,7 +7,7 @@ const COLLECTION_NAME = 'comments'
 
 const commentSchema = new Schema(
   {
-    comment_productId: { type: Schema.Types.ObjectId, ref: 'Products' },
+    comment_productId: { type: Schema.Types.ObjectId, ref: 'product' },
     comment_userId: { type: Number, defaut: 1 },
     comment_content: { type: String, default: 'text' },
     comment_left: { type: Number, default: 0 },

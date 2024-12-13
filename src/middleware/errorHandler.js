@@ -20,11 +20,18 @@ const returnError = (err, req, res, next) => {
     if (err.name === 'TokenExpiredError') error = handlerJWTExpiredError(err)
   }
 
-  return res.status(statusCode).json({
+  // Include stack trace in development mode
+  const response = {
     status: statusCode,
     message: error.message || 'Internal server error',
     errors: error.errors
-  })
+  }
+
+  if (process.env.NODE_ENV === 'local') {
+    response.stack = err.stack // Add stack trace
+  }
+
+  return res.status(statusCode).json(response)
 }
 
 const isOperationalError = (error) => {
@@ -66,7 +73,7 @@ const handlerJWTError = (err) => {
 
 const handlerJWTExpiredError = (err) => {
   console.error(err)
-  const message = `Your token has expired! Please log in again.`
+  const message = `Your token has expired! Please login again.`
   return new Api403Error(message)
 }
 
