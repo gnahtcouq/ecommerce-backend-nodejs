@@ -30,9 +30,9 @@ class Database {
         maxPoolSize: MAX_POLL_SIZE
       })
       .then((_) => {
-        console.log(`Connected Mongodb Success!`, countConnect())
+        console.log(`Connected Mongodb ${host}:${port}/${name}, Number of connections:`, countConnect())
       })
-      .catch((err) => console.log(`Error Connect!`))
+      .catch((err) => console.log(`Error connected Mongodb`, err))
   }
 
   static getInstance() {

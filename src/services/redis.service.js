@@ -3,11 +3,17 @@
 const redis = require('redis')
 const { promisify } = require('util')
 const { reservationInventory } = require('@/models/repositories/inventory.repo')
-const redisClient = redis.createClient()
+const {
+  redis: { host, port, username, password }
+} = require('@/configs/config')
+const redisClient = redis.createClient({
+  port: port,
+  host: host
+})
 
 redisClient.ping((error, result) => {
-  if (error) console.log(`Error connecting to Redis: `, error)
-  else console.log(`Connected to Redis: `, result)
+  if (error) console.log(`Error connected Redis ${host}:${port}`)
+  else console.log(`Connected Redis ${host}:${port}`)
 })
 
 const pexpire = promisify(redisClient.pexpire).bind(redisClient)
