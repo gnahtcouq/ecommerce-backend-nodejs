@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use strict'
 
 const JWT = require('jsonwebtoken')
@@ -11,18 +10,18 @@ const HEADER = {
   API_KEY: 'x-api-key',
   CLIENT_ID: 'x-client-id',
   AUTHORIZATION: 'authorization',
-  REFRESH_TOKEN: 'refresh-token'
-  // BEARER: 'Bearer '
+  REFRESH_TOKEN: 'refresh-token',
+  BEARER: 'Bearer '
 }
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
   try {
     // accessToken
-    const accessToken = await JWT.sign(payload, publicKey, {
+    const accessToken = JWT.sign(payload, publicKey, {
       expiresIn: '2 days'
     })
 
-    const refreshToken = await JWT.sign(payload, privateKey, {
+    const refreshToken = JWT.sign(payload, privateKey, {
       expiresIn: '7 days'
     })
 
@@ -114,8 +113,8 @@ const authentication = asyncHandler(async (req, res, next) => {
   }
 })
 
-const verifyJWT = async (token, keySecret) => {
-  return await JWT.verify(token, keySecret)
+const verifyJWT = (token, keySecret) => {
+  return JWT.verify(token, keySecret)
 }
 
 const extractToken = (tokenHeader) => {
