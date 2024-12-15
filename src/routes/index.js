@@ -21,5 +21,6 @@ router.use('/api/v1/cart', require('@/routes/cart'))
 router.use('/api/v1/checkout', require('@/routes/checkout'))
 router.use('/api/v1/inventory', require('@/routes/inventory'))
 router.use('/api/v1/comment', require('@/routes/comment'))
+router.use('/api/v1/notification', require('@/routes/notification'))
 
 module.exports = router

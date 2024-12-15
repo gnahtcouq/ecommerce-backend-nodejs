@@ -7,8 +7,8 @@ const KeyTokenService = require('@/services/keyToken.service')
 const { findByEmail } = require('@/services/shop.service')
 const { Api400Error, Api401Error, Api403Error } = require('@/core/error.response')
 const { getInfoData } = require('@/utils')
-const { createTokenPair } = require('@/auth/authUtils')
 const apiKeyModel = require('@/models/apiKey.model')
+const { createTokenPair } = require('@/auth/authUtils')
 
 const RoleShop = {
   SHOP: 'SHOP',
